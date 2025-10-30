@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volunteer Hub – Airdrie 1st Club</title>
+<style>
+:root {
+  --brand-purple: #5E2978;
+  --brand-yellow: #FFD400;
+  --brand-white: #FFFFFF;
+  --text-dark: #333333;
+}
+
+html { scroll-behavior: smooth; }
+body { margin: 0; font-family: Arial, sans-serif; background-color: var(--brand-white); color: var(--text-dark); line-height: 1.5; }
+
+header {
+  text-align: center;
+  padding: 20px;
+  background-color: var(--brand-purple);
+  color: var(--brand-white);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+header img { max-width: 150px; height: auto; display: block; margin: 0 auto 10px; }
+header a { color: var(--brand-yellow); font-weight: bold; text-decoration: underline; display: inline-block; margin-top: 5px; }
+
+section { padding: 15px; }
+
+.announcements { background-color: #f5f5f5; border-left: 5px solid var(--brand-yellow); margin-bottom: 20px; }
+.announcements h2 { color: var(--brand-purple); }
+
+.calendar-overview iframe { width: 100%; height: 400px; border: 0; margin-top: 10px; }
+
+.events-table input[type="text"] { margin-bottom: 10px; padding: 5px; width: 100%; max-width: 300px; }
+
+.events-table table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+.events-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: #4b1d65;
+  color: var(--brand-white);
+  font-weight: bold;
+  font-size: 15px;
+  padding: 10px;
+  text-align: left;
+}
+
+.events-table td { padding: 8px; border-bottom: 1px solid #ddd; }
+.events-table tr:nth-child(even) { background-color: #f9f9f9; }
+.events-table tr:hover { background-color: #ffe; }
+
+.status-Urgent { background-color: #fff2cc; font-weight: bold; }
+
+.events-table a { color: var(--brand-purple); text-decoration: none; font-weight: bold; }
+.events-table a:hover { text-decoration: underline; }
+
+.footer { text-align: center; padding: 15px; background-color: #f5f5f5; font-size: 12px; color: #555; }
+
+#back-to-top {
+  display: none; position: fixed; bottom: 20px; right: 20px;
+  background: var(--brand-purple); color: var(--brand-white); padding: 10px; border-radius: 5px; cursor: pointer; z-index: 100;
+}
+
+@media screen and (max-width: 600px) {
+  header { position: static; }
+  .events-table th { font-size: 13px; padding: 8px; }
+  header h1 { font-size: 24px; }
+  .events-table td { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="LOGO_URL_HERE" alt="Airdrie 1st Club Logo">
+  <h1>Volunteer Hub</h1>
+  <p>Welcome! See upcoming events and sign up for shifts here.</p>
+  <a href="#events-section">Take me to Events ↓</a>
+</header>
+
+<section class="announcements">
+  <h2>Announcements</h2>
+  <ul></ul>
+</section>
+
+<section class="calendar-overview">
+  <h2>Calendar Overview</h2>
+  <iframe src="YOUR_CALENDAR_URL_HERE"></iframe>
+  <p style="font-size:12px; color:#555;">*Scroll horizontally on mobile to view full month/week.*</p>
+</section>
+
+<section class="events-table" id="events-section">
+  <h2>Upcoming Events</h2>
+  <input type="text" id="search-box" placeholder="Search events by name, location or status">
+  <div id="volunteer-table-container"></div>
+</section>
+
+<footer class="footer">
+  <p>Last Updated: Oct 29, 2025</p>
+  <p>Contact: volunteerhub@airdrie1st.com</p>
+  <p>Scan QR code to access page on your phone</p>
+</footer>
+
+<div id="back-to-top">↑ Top</div>
+
+<script>
+// CSV links
+const eventsCSVUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhq8wvlLa7gno18eYmPUlejqPde7DNLvpn0RQnAkzaPJUhni765hn6VQ3akZq_MEfSQ9TWnlYVFILG/pub?gid=0&single=true&output=csv";
+const announcementsCSVUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?output=csv";
+
+// CSV parser
+function parseCSV(csvText) { return csvText.trim().split("\n").map(row => row.split(",")); }
+
+// Announcements
+fetch(announcementsCSVUrl).then(res => res.text()).then(csvText => {
+  const data = parseCSV(csvText);
+  const container = document.querySelector(".announcements ul");
+  container.innerHTML = "";
+  data.forEach(row => {
+    const icon = row[0] || "📢";
+    const message = row[1] || "";
+    if(message.trim()) {
+      const li = document.createElement("li");
+      li.textContent = `${icon} ${message}`;
+      container.appendChild(li);
+    }
+  });
+});
+
+// Volunteer events table
+fetch(eventsCSVUrl).then(res => res.text()).then(csvText => {
+  const data = parseCSV(csvText);
+  const container = document.getElementById("volunteer-table-container");
+  const headers = data[0];
+  const rows = data.slice(1);
+
+  let html = "<table><thead><tr>";
+  headers.forEach(h => html += `<th>${h}</th>`);
+  html += "</tr></thead><tbody>";
+
+  rows.forEach(row => {
+    const status = row[headers.indexOf("Status")]?.trim();
+    const urgentClass = status === "Urgent" ? "status-Urgent" : "";
+    html += `<tr class="${urgentClass}">`;
+    row.forEach((cell,i) => {
+      let value = cell.trim();
+      if(value.startsWith("http")) value = `<a href="${value}" target="_blank">Sign Up</a>`;
+      html += `<td>${value}</td>`;
+    });
+    html += "</tr>";
+  });
+
+  html += "</tbody></table>";
+  container.innerHTML = html;
+});
+
+// Search box
+document.getElementById("search-box").addEventListener("input", function() {
+  const filter = this.value.toLowerCase();
+  const rows = document.querySelectorAll(".events-table tbody tr");
+  rows.forEach(row => row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none");
+});
+
+// Back-to-top
+const topButton = document.getElementById("back-to-top");
+window.addEventListener("scroll", () => topButton.style.display = window.scrollY > 200 ? "block" : "none");
+topButton.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+</script>
+
+</body>
+</html>
