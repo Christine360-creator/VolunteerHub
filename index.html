@@ -29,26 +29,22 @@ header a { color: var(--brand-yellow); font-weight: bold; text-decoration: under
 
 .banner img {
   width: 100%;
-  max-height: 200px; /* smaller banner */
+  max-height: 150px; /* smaller banner */
+  object-fit: cover;
   display: block;
   margin-bottom: 15px;
-  object-fit: cover;
 }
 @media screen and (max-width: 600px) {
-  .banner img { max-height: 120px; } /* smaller on phone */
+  .banner img {
+    max-height: 100px; /* smaller on phone */
+  }
 }
 
 section { padding: 15px; }
 
 .announcements { background-color: #f5f5f5; border-left: 5px solid var(--brand-yellow); margin-bottom: 20px; text-align: center; }
 .announcements h2 { color: var(--brand-purple); text-align: center; }
-.announcements ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 auto;
-  display: inline-block;
-  text-align: left;
-}
+.announcements ul { list-style: none; padding: 0; margin: 0 auto; display: inline-block; text-align: left; }
 .announcements li { margin: 5px 0; }
 
 .calendar-overview { text-align: center; }
@@ -97,15 +93,12 @@ section { padding: 15px; }
 
 <section class="announcements">
   <h2>Announcements</h2>
-  <ul>
-    <li>📢 Volunteers needed for Saturday!</li>
-    <li>📢 New event added for next week</li>
-  </ul>
+  <ul></ul>
 </section>
 
 <section class="calendar-overview">
   <h2>Calendar Overview</h2>
-  <iframe src="https://calendar.google.com/calendar/embed?src=volunteer%40airdrie1st.com&ctz=America%2FEdmonton" width="800" height="600" frameborder="0" scrolling="no" style="border:0;"></iframe>
+  <iframe src="https://calendar.google.com/calendar/embed?src=volunteer%40airdrie1st.com&ctz=America%2FEdmonton"></iframe>
   <p style="font-size:12px; color:#555;">*Scroll horizontally on mobile to view full month/week.*</p>
 </section>
 
@@ -123,39 +116,52 @@ section { padding: 15px; }
 
 <div id="back-to-top">↑ Top</div>
 
-<!-- PapaParse -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
 const eventsCSVUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv";
+const announcementsCSVUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?output=csv";
 
-Papa.parse(eventsCSVUrl, {
-  download: true,
-  header: true,
-  skipEmptyLines: true,
-  complete: function(results) {
-    const data = results.data;
-    const headers = Object.keys(data[0]);
-    const container = document.getElementById("volunteer-table-container");
+// Announcements
+fetch(announcementsCSVUrl).then(res => res.text()).then(csvText => {
+  const data = csvText.trim().split("\n").map(row => row.split(","));
+  const container = document.querySelector(".announcements ul");
+  container.innerHTML = "";
+  data.forEach(row => {
+    const icon = row[0] || "📢";
+    const message = row[1] || "";
+    if(message.trim()) {
+      const li = document.createElement("li");
+      li.textContent = `${icon} ${message}`;
+      container.appendChild(li);
+    }
+  });
+});
 
-    let html = "<table><thead><tr>";
-    headers.forEach(h => html += `<th>${h}</th>`);
-    html += "</tr></thead><tbody>";
+// Volunteer events table
+fetch(eventsCSVUrl).then(res => res.text()).then(csvText => {
+  const data = csvText.trim().split("\n").map(row => row.split(","));
+  const headers = data[0];
+  const rows = data.slice(1);
+  const container = document.getElementById("volunteer-table-container");
 
-    data.forEach(row => {
-      const status = row["Status"]?.trim();
-      const urgentClass = status === "Urgent" ? "status-Urgent" : "";
-      html += `<tr class="${urgentClass}">`;
-      headers.forEach(h => {
-        let value = row[h] || "";
-        if(value.startsWith("http")) value = `<a href="${value}" target="_blank">Sign Up</a>`;
-        html += `<td>${value}</td>`;
-      });
-      html += "</tr>";
+  let html = "<table><thead><tr>";
+  headers.forEach(h => html += `<th>${h}</th>`);
+  html += "</tr></thead><tbody>";
+
+  rows.forEach(row => {
+    const status = row[headers.indexOf("Status")]?.trim();
+    const urgentClass = status === "Urgent" ? "status-Urgent" : "";
+    html += `<tr class="${urgentClass}">`;
+    row.forEach((cell,i) => {
+      let value = cell.trim();
+      if(value.startsWith("http")) value = `<a href="${value}" target="_blank">Sign Up</a>`;
+      html += `<td>${value}</td>`;
     });
+    html += "</tr>";
+  });
 
-    html += "</tbody></table>";
-    container.innerHTML = html;
-  }
+  html += "</tbody></table>";
+  container.innerHTML = html;
 });
 
 // Search
