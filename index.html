@@ -29,10 +29,13 @@ header a { color: var(--brand-yellow); font-weight: bold; text-decoration: under
 
 .banner img {
   width: 100%;
-  height: auto;
+  max-height: 200px; /* smaller banner */
   display: block;
   margin-bottom: 15px;
   object-fit: cover;
+}
+@media screen and (max-width: 600px) {
+  .banner img { max-height: 120px; } /* smaller on phone */
 }
 
 section { padding: 15px; }
@@ -56,19 +59,8 @@ section { padding: 15px; }
 .events-table h2 { text-align: center; color: var(--brand-purple); }
 .events-table input[type="text"] { margin-bottom: 10px; padding: 5px; width: 100%; max-width: 300px; display: block; margin-left: auto; margin-right: auto; }
 
-.events-table table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 14px; }
-.events-table th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background-color: #4b1d65;
-  color: var(--brand-white);
-  font-weight: bold;
-  font-size: 15px;
-  padding: 10px;
-  text-align: left;
-}
-.events-table td { padding: 8px; border-bottom: 1px solid #ddd; }
+.events-table table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 14px; table-layout: auto; }
+.events-table th, .events-table td { padding: 8px; border: 1px solid #ddd; }
 .events-table tr:nth-child(even) { background-color: #f9f9f9; }
 .events-table tr:hover { background-color: #ffe; }
 .status-Urgent { background-color: #fff2cc; font-weight: bold; }
@@ -84,9 +76,8 @@ section { padding: 15px; }
 
 @media screen and (max-width: 600px) {
   header { position: static; }
-  .events-table th { font-size: 13px; padding: 8px; }
+  .events-table th, .events-table td { font-size: 12px; padding: 6px; }
   header h1 { font-size: 24px; }
-  .events-table td { font-size: 12px; }
   .calendar-overview iframe { height: 300px; }
 }
 </style>
@@ -114,7 +105,7 @@ section { padding: 15px; }
 
 <section class="calendar-overview">
   <h2>Calendar Overview</h2>
-  <iframe src="https://calendar.google.com/calendar/embed?src=volunteer%40airdrie1st.com&ctz=America%2FEdmonton" style="border: 0;" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+  <iframe src="https://calendar.google.com/calendar/embed?src=volunteer%40airdrie1st.com&ctz=America%2FEdmonton" width="800" height="600" frameborder="0" scrolling="no" style="border:0;"></iframe>
   <p style="font-size:12px; color:#555;">*Scroll horizontally on mobile to view full month/week.*</p>
 </section>
 
@@ -132,14 +123,11 @@ section { padding: 15px; }
 
 <div id="back-to-top">↑ Top</div>
 
-<!-- Include PapaParse from CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-sC3RQpymvGfzECGUNx0b7zzq4o8/g5+/gVb+V52n0k9yn2mY1qR6oWl9jRy2f5yCgIPtAn0+j1cM6UEYV0gT3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+<!-- PapaParse -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-// Mobile-friendly Google Sheet CSV link
 const eventsCSVUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv";
 
-// Fetch and parse CSV using PapaParse
 Papa.parse(eventsCSVUrl, {
   download: true,
   header: true,
@@ -170,11 +158,12 @@ Papa.parse(eventsCSVUrl, {
   }
 });
 
-// Search box
+// Search
 document.getElementById("search-box").addEventListener("input", function() {
   const filter = this.value.toLowerCase();
-  const rows = document.querySelectorAll(".events-table tbody tr");
-  rows.forEach(row => row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none");
+  document.querySelectorAll(".events-table tbody tr").forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
+  });
 });
 
 // Back-to-top
@@ -185,5 +174,3 @@ topButton.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "s
 
 </body>
 </html>
-
-
