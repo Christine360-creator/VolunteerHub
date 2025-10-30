@@ -29,15 +29,10 @@ header a { color: var(--brand-yellow); font-weight: bold; text-decoration: under
 
 .banner img {
   width: 100%;
-  max-height: 150px; /* smaller banner */
+  max-height: 150px; 
   object-fit: cover;
   display: block;
   margin-bottom: 15px;
-}
-@media screen and (max-width: 600px) {
-  .banner img {
-    max-height: 100px; /* smaller on phone */
-  }
 }
 
 section { padding: 15px; }
@@ -51,12 +46,16 @@ section { padding: 15px; }
 .calendar-overview h2 { color: var(--brand-purple); }
 .calendar-overview iframe { width: 100%; max-width: 800px; height: 400px; border: 0; margin-top: 10px; }
 
-.events-table { overflow-x: auto; }
+.events-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .events-table h2 { text-align: center; color: var(--brand-purple); }
 .events-table input[type="text"] { margin-bottom: 10px; padding: 5px; width: 100%; max-width: 300px; display: block; margin-left: auto; margin-right: auto; }
 
 .events-table table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 14px; table-layout: auto; }
-.events-table th, .events-table td { padding: 8px; border: 1px solid #ddd; }
+.events-table th, .events-table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  white-space: nowrap;
+}
 .events-table tr:nth-child(even) { background-color: #f9f9f9; }
 .events-table tr:hover { background-color: #ffe; }
 .status-Urgent { background-color: #fff2cc; font-weight: bold; }
@@ -73,6 +72,7 @@ section { padding: 15px; }
 @media screen and (max-width: 600px) {
   header { position: static; }
   .events-table th, .events-table td { font-size: 12px; padding: 6px; }
+  .events-table table { min-width: 500px; }
   header h1 { font-size: 24px; }
   .calendar-overview iframe { height: 300px; }
 }
@@ -118,7 +118,7 @@ section { padding: 15px; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-const eventsCSVUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv";
+const eventsCSVUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndcjPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv";
 const announcementsCSVUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?output=csv";
 
 // Announcements
@@ -152,9 +152,12 @@ fetch(eventsCSVUrl).then(res => res.text()).then(csvText => {
     const status = row[headers.indexOf("Status")]?.trim();
     const urgentClass = status === "Urgent" ? "status-Urgent" : "";
     html += `<tr class="${urgentClass}">`;
-    row.forEach((cell,i) => {
+    row.forEach((cell, i) => {
       let value = cell.trim();
-      if(value.startsWith("http")) value = `<a href="${value}" target="_blank">Sign Up</a>`;
+      // Make Sign Up column a clickable link
+      if (headers[i].toLowerCase().includes("sign up") && value) {
+        value = `<a href="${value}" target="_blank">Sign Up</a>`;
+      }
       html += `<td>${value}</td>`;
     });
     html += "</tr>";
@@ -180,3 +183,4 @@ topButton.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "s
 
 </body>
 </html>
+
