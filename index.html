@@ -106,12 +106,15 @@ section { padding: 15px; }
 
 <section class="announcements">
   <h2>Announcements</h2>
-  <ul></ul>
+  <ul>
+    <li>📢 Volunteers needed for Saturday!</li>
+    <li>📢 New event added for next week</li>
+  </ul>
 </section>
 
 <section class="calendar-overview">
   <h2>Calendar Overview</h2>
-  <iframe src="https://calendar.google.com/calendar/embed?src=volunteer%40airdrie1st.com&ctz=America%2FEdmonton" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+  <iframe src="https://calendar.google.com/calendar/embed?src=volunteer%40airdrie1st.com&ctz=America%2FEdmonton" style="border: 0;" width="800" height="600" frameborder="0" scrolling="no"></iframe>
   <p style="font-size:12px; color:#555;">*Scroll horizontally on mobile to view full month/week.*</p>
 </section>
 
@@ -129,53 +132,42 @@ section { padding: 15px; }
 
 <div id="back-to-top">↑ Top</div>
 
+<!-- Include PapaParse from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-sC3RQpymvGfzECGUNx0b7zzq4o8/g5+/gVb+V52n0k9yn2mY1qR6oWl9jRy2f5yCgIPtAn0+j1cM6UEYV0gT3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script>
-// CSV link (mobile-friendly)
+// Mobile-friendly Google Sheet CSV link
 const eventsCSVUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv";
 
-// Simple CSV parser
-function parseCSV(csvText) {
-  return csvText.trim().split("\n").map(row => row.split(","));
-}
+// Fetch and parse CSV using PapaParse
+Papa.parse(eventsCSVUrl, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
+    const data = results.data;
+    const headers = Object.keys(data[0]);
+    const container = document.getElementById("volunteer-table-container");
 
-// Announcements (example placeholder)
-const announcements = [
-  ["📢", "Volunteers needed for Saturday!"],
-  ["📢", "New event added for next week"]
-];
-const annContainer = document.querySelector(".announcements ul");
-annContainer.innerHTML = "";
-announcements.forEach(row => {
-  const li = document.createElement("li");
-  li.textContent = `${row[0]} ${row[1]}`;
-  annContainer.appendChild(li);
-});
+    let html = "<table><thead><tr>";
+    headers.forEach(h => html += `<th>${h}</th>`);
+    html += "</tr></thead><tbody>";
 
-// Volunteer events table
-fetch(eventsCSVUrl).then(res => res.text()).then(csvText => {
-  const data = parseCSV(csvText);
-  const container = document.getElementById("volunteer-table-container");
-  const headers = data[0];
-  const rows = data.slice(1);
-
-  let html = "<table><thead><tr>";
-  headers.forEach(h => html += `<th>${h}</th>`);
-  html += "</tr></thead><tbody>";
-
-  rows.forEach(row => {
-    const status = row[headers.indexOf("Status")]?.trim();
-    const urgentClass = status === "Urgent" ? "status-Urgent" : "";
-    html += `<tr class="${urgentClass}">`;
-    row.forEach((cell,i) => {
-      let value = cell.trim();
-      if(value.startsWith("http")) value = `<a href="${value}" target="_blank">Sign Up</a>`;
-      html += `<td>${value}</td>`;
+    data.forEach(row => {
+      const status = row["Status"]?.trim();
+      const urgentClass = status === "Urgent" ? "status-Urgent" : "";
+      html += `<tr class="${urgentClass}">`;
+      headers.forEach(h => {
+        let value = row[h] || "";
+        if(value.startsWith("http")) value = `<a href="${value}" target="_blank">Sign Up</a>`;
+        html += `<td>${value}</td>`;
+      });
+      html += "</tr>";
     });
-    html += "</tr>";
-  });
 
-  html += "</tbody></table>";
-  container.innerHTML = html;
+    html += "</tbody></table>";
+    container.innerHTML = html;
+  }
 });
 
 // Search box
