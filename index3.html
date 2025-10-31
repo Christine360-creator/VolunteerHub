@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volunteer Hub</title>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fb;
+    color: #002856;
+    text-align: center;
+  }
+
+  header {
+    background-color: #002856;
+    color: white;
+    padding: 15px 10px;
+  }
+  header img {
+    height: 60px;
+    max-width: 80%;
+    display: block;
+    margin: 0 auto 10px;
+  }
+  h1 {
+    color: #ffb81c;
+    margin: 5px 0 15px;
+    font-size: 1.8rem;
+  }
+
+  section {
+    margin: 20px auto;
+    width: 90%;
+    max-width: 1000px;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .photo {
+    width: 150px;
+    max-width: 40%;
+    border-radius: 50%;
+    margin-bottom: 15px;
+  }
+
+  h2 {
+    margin-bottom: 10px;
+    color: #002856;
+    font-size: 1.4rem;
+  }
+
+  #notifications p {
+    color: #ffb81c;
+    margin: 5px 0;
+  }
+
+  /* Table styling */
+  #searchInput {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    max-height: 400px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* ensures horizontal scroll on mobile */
+  }
+  th, td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+  }
+  th {
+    position: sticky;
+    top: 0;
+    background: #002856;
+    color: white;
+  }
+
+  footer {
+    margin-top: 30px;
+    padding: 15px 10px;
+    background: #002856;
+    color: white;
+    font-size: 0.9rem;
+  }
+  footer a {
+    color: #ffb81c;
+    text-decoration: none;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .photo {
+      width: 100px;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+    h2 {
+      font-size: 1.2rem;
+    }
+    table th, table td {
+      padding: 6px 8px;
+      font-size: 0.9rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="logo.png" alt="Airdrie 1st Logo">
+  <h1>Volunteer Hub</h1>
+</header>
+
+<section>
+  <img class="photo" src="photo1.jpg" alt="Community photo">
+  <h2>Welcome to Airdrie 1st Volunteers</h2>
+  <p>We’re so glad you’re here! Stay informed, connected, and inspired as we make a difference together in our community.</p>
+</section>
+
+<section id="notifications">
+  <h2>📢 Notifications</h2>
+  <div id="announcementList">
+    <p>Loading announcements...</p>
+  </div>
+</section>
+
+<section>
+  <h2>Volunteer Schedule</h2>
+  <input type="text" id="searchInput" placeholder="Search in table...">
+  <div class="table-container">
+    <table id="volunteerTable">
+      <thead>
+        <tr id="tableHeader">
+          <!-- Header populated dynamically -->
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Table rows populated dynamically -->
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Contact us: <a href="mailto:yourname@example.com">yourname@example.com</a>
+</footer>
+
+<script>
+// CSV link for volunteer schedule
+const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv';
+
+// Fetch CSV and populate table
+fetch(csvUrl)
+  .then(response => response.text())
+  .then(data => {
+    const rows = data.split('\n').filter(row => row.trim() !== '');
+    const tableBody = document.getElementById('tableBody');
+    const tableHeader = document.getElementById('tableHeader');
+
+    rows.forEach((row, index) => {
+      const cols = row.split(',');
+      if (index === 0) {
+        // Header row
+        cols.forEach(col => {
+          const th = document.createElement('th');
+          th.textContent = col;
+          tableHeader.appendChild(th);
+        });
+      } else {
+        const tr = document.createElement('tr');
+        cols.forEach(col => {
+          const td = document.createElement('td');
+          td.textContent = col;
+          tr.appendChild(td);
+        });
+        tableBody.appendChild(tr);
+      }
+    });
+  });
+
+// Search function for table
+document.getElementById('searchInput').addEventListener('input', function() {
+  const filter = this.value.toLowerCase();
+  const trs = document.querySelectorAll('#tableBody tr');
+  trs.forEach(tr => {
+    const text = tr.textContent.toLowerCase();
+    tr.style.display = text.includes(filter) ? '' : 'none';
+  });
+});
+
+// Announcements sheet link (published HTML version)
+const announcementsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?gid=0&single=true&output=csv';
+
+// Fetch announcements and populate notifications
+fetch(announcementsUrl)
+  .then(response => response.text())
+  .then(data => {
+    const rows = data.split('\n').filter(row => row.trim() !== '');
+    const announcementDiv = document.getElementById('announcementList');
+    announcementDiv.innerHTML = ''; // clear "Loading" text
+    rows.forEach((row, index) => {
+      if(row.trim() !== '') {
+        const p = document.createElement('p');
+        p.textContent = row;
+        announcementDiv.appendChild(p);
+      }
+    });
+  })
+  .catch(err => {
+    const announcementDiv = document.getElementById('announcementList');
+    announcementDiv.innerHTML = '<p>No announcements available.</p>';
+    console.error(err);
+  });
+</script>
+
+</body>
+</html>
