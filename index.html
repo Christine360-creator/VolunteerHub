@@ -16,95 +16,23 @@
     --row-light: #f9f9f9;
     --row-dark: #ffffff;
   }
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--bg-light);
-    color: var(--text-dark);
-  }
-  header {
-    background-color: var(--brand-purple);
-    color: white;
-    padding: 20px;
-    text-align: center;
-  }
-  header img {
-    height: 60px;
-    display: block;
-    margin: 0 auto 10px auto;
-  }
-  header h1 {
-    color: var(--brand-yellow);
-    font-size: 1.8rem;
-    margin: 0;
-  }
-  section {
-    margin: 25px auto; 
-    width: 90%; 
-    max-width: 1000px; 
-    background: white; 
-    border-radius: 10px; 
-    padding: 20px; 
-    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-    text-align: center;
-  }
-  h2 { 
-    margin-bottom: 12px; 
-    color: var(--brand-purple); 
-    font-size: 1.5rem; 
-  }
-  #searchInput { 
-    width: 100%; 
-    padding: 10px; 
-    margin-bottom: 15px; 
-    border-radius: 6px; 
-    border: 1px solid #ccc; 
-    font-size: 1rem; 
-    box-sizing: border-box;
-  }
-  .table-container { 
-    overflow-x: auto; 
-    max-height: 450px; 
-    border: 1px solid #ccc; 
-    border-radius: 8px;
-  }
-  table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    min-width: 600px; 
-  }
-  th, td { 
-    padding: 10px 14px; 
-    border-bottom: 1px solid #ddd; 
-    text-align: left; 
-    font-size: 0.95rem; 
-  }
-  th { 
-    position: sticky; 
-    top: 0; 
-    background: var(--brand-purple); 
-    color: var(--brand-yellow); 
-    font-size: 1rem; 
-  }
-  tbody tr:nth-child(even) { background-color: var(--row-light); }
-  tbody tr:nth-child(odd) { background-color: var(--row-dark); }
-  tbody tr:hover { background-color: #e0e0f0; }
-  footer { 
-    margin-top: 35px; 
-    padding: 20px 10px; 
-    background: var(--brand-purple); 
-    color: white; 
-    font-size: 0.9rem; 
-    text-align: center;
-  }
-  footer a { color: var(--brand-yellow); text-decoration: none; }
-
-  @media (max-width: 600px) {
-    h2 { font-size: 1.2rem; }
-    th, td { padding: 6px 8px; font-size: 0.85rem; }
-    #searchInput { padding: 8px; font-size: 0.9rem; }
-  }
+  body { font-family: 'Segoe UI', sans-serif; margin:0; padding:0; background-color: var(--bg-light); color: var(--text-dark);}
+  header { background-color: var(--brand-purple); color: white; padding: 20px; text-align: center;}
+  header img { height: 60px; display:block; margin: 0 auto 10px auto;}
+  header h1 { color: var(--brand-yellow); font-size:1.8rem; margin:0;}
+  section { margin:25px auto; width:90%; max-width:1000px; background:white; border-radius:10px; padding:20px; box-shadow:0 1px 6px rgba(0,0,0,0.08); text-align:center;}
+  h2 { margin-bottom:12px; color: var(--brand-purple); font-size:1.5rem;}
+  #searchInput { width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc; font-size:1rem; box-sizing:border-box;}
+  .table-container { overflow-x:auto; max-height:450px; border:1px solid #ccc; border-radius:8px;}
+  table { width:100%; border-collapse:collapse; min-width:600px;}
+  th, td { padding:10px 14px; border-bottom:1px solid #ddd; text-align:left; font-size:0.95rem;}
+  th { position:sticky; top:0; background: var(--brand-purple); color: var(--brand-yellow); font-size:1rem;}
+  tbody tr:nth-child(even) { background-color: var(--row-light);}
+  tbody tr:nth-child(odd) { background-color: var(--row-dark);}
+  tbody tr:hover { background-color: #e0e0f0;}
+  footer { margin-top:35px; padding:20px 10px; background: var(--brand-purple); color:white; font-size:0.9rem; text-align:center;}
+  footer a { color: var(--brand-yellow); text-decoration:none;}
+  @media (max-width:600px){h2{font-size:1.2rem;} th,td{padding:6px 8px;font-size:0.85rem;} #searchInput{padding:8px;font-size:0.9rem;}}
 </style>
 </head>
 <body>
@@ -138,45 +66,45 @@
 const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv&cachebuster=' + new Date().getTime();
 
 Papa.parse(csvUrl, {
-  download: true,
-  header: true,
-  skipEmptyLines: true,
-  delimiter: "\t",
-  complete: function(results) {
+  download:true,
+  header:true,
+  skipEmptyLines:true,
+  complete: function(results){
     const data = results.data;
     const tableBody = document.getElementById('tableBody');
     const tableHeader = document.getElementById('tableHeader');
-    tableBody.innerHTML = '';
-    tableHeader.innerHTML = '';
+    tableBody.innerHTML='';
+    tableHeader.innerHTML='';
 
-    const firstRow = data[0];
+    if(!data || data.length===0) return;
+
+    // Find signup and hidden columns
     let signupCol = null;
     let hiddenCol = null;
-
-    Object.keys(firstRow).forEach(key => {
-      const lowerKey = key.toLowerCase();
-      if(lowerKey === 'sign up') signupCol = key;
-      if(lowerKey === 'hidden') hiddenCol = key;
-      if(key !== hiddenCol){
+    Object.keys(data[0]).forEach(key=>{
+      const lowerKey = key.toLowerCase().trim();
+      if(lowerKey==='sign up') signupCol = key;
+      if(lowerKey==='hidden') hiddenCol = key;
+      if(key!==hiddenCol){
         const th = document.createElement('th');
         th.textContent = key;
         tableHeader.appendChild(th);
       }
     });
 
-    data.forEach(row => {
-      const tr = document.createElement('tr');
-      Object.keys(row).forEach(key => {
-        if(key === hiddenCol) return;
-        const td = document.createElement('td');
-        if(key === signupCol && row[key].trim() !== ''){
-          const a = document.createElement('a');
-          a.href = row[key];
-          a.target = "_blank";
-          a.textContent = "SignUp";
+    data.forEach(row=>{
+      const tr=document.createElement('tr');
+      Object.keys(row).forEach(key=>{
+        if(key===hiddenCol) return;
+        const td=document.createElement('td');
+        if(key===signupCol && row[key].trim()!==''){
+          const a=document.createElement('a');
+          a.href=row[key];
+          a.target="_blank";
+          a.textContent="SignUp";
           td.appendChild(a);
         } else {
-          td.textContent = row[key];
+          td.textContent=row[key];
         }
         tr.appendChild(td);
       });
@@ -185,14 +113,15 @@ Papa.parse(csvUrl, {
   }
 });
 
-// Simple search filter
+// Search filter
 document.getElementById('searchInput').addEventListener('input', function(){
-  const filter = this.value.toLowerCase();
-  document.querySelectorAll('#tableBody tr').forEach(tr => {
-    tr.style.display = tr.textContent.toLowerCase().includes(filter) ? '' : 'none';
+  const filter=this.value.toLowerCase();
+  document.querySelectorAll('#tableBody tr').forEach(tr=>{
+    tr.style.display=tr.textContent.toLowerCase().includes(filter)?'':'none';
   });
 });
 </script>
 
 </body>
 </html>
+
