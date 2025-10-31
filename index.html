@@ -29,14 +29,14 @@
   header {
     background-color: var(--brand-purple);
     color: white;
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
+    padding: 20px;
+    text-align: center; /* Center logo + title */
   }
 
   header img {
     height: 60px;
-    margin-right: 15px;
+    display: block;
+    margin: 0 auto 10px auto;
   }
 
   header h1 {
@@ -132,14 +132,6 @@
   }
 
   @media (max-width: 600px) {
-    header {
-      flex-direction: column;
-      text-align: center;
-    }
-    header img {
-      margin: 0 0 10px 0;
-    }
-    header h1 { font-size: 1.6rem; }
     h2 { font-size: 1.2rem; }
     th, td { padding: 6px 8px; font-size: 0.85rem; }
     #searchInput { padding: 8px; font-size: 0.9rem; }
@@ -179,84 +171,88 @@
 </footer>
 
 <script>
-// CSV URLs
-const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDHrJwHz/pub?gid=121942850&single=true&output=csv';
-const announcementsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?gid=0&single=true&output=csv';
+window.onload = function(){
 
-// Load volunteer table
-Papa.parse(csvUrl, {
-  download: true,
-  header: true,
-  skipEmptyLines: true,
-  complete: function(results) {
-    const data = results.data;
-    const tableBody = document.getElementById('tableBody');
-    const tableHeader = document.getElementById('tableHeader');
-    tableBody.innerHTML = '';
-    tableHeader.innerHTML = '';
+  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDHrJwHz/pub?gid=121942850&single=true&output=csv';
+  const announcementsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?gid=0&single=true&output=csv';
 
-    // Header
-    const firstRow = data[0];
-    let signupCol = null;
-    let hiddenCol = null;
-    Object.keys(firstRow).forEach(key => {
-      const lowerKey = key.toLowerCase();
-      if(lowerKey === 'signup') signupCol = key;
-      if(lowerKey === 'hidden') hiddenCol = key;
-      if(lowerKey !== hiddenCol){
-        const th = document.createElement('th');
-        th.textContent = key;
-        tableHeader.appendChild(th);
-      }
-    });
+  // Volunteer Table
+  Papa.parse(csvUrl, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    delimiter: "\t", // <-- IMPORTANT for tab-delimited CSV
+    complete: function(results) {
+      const data = results.data;
+      const tableBody = document.getElementById('tableBody');
+      const tableHeader = document.getElementById('tableHeader');
+      tableBody.innerHTML = '';
+      tableHeader.innerHTML = '';
 
-    // Rows
-    data.forEach(row => {
-      const tr = document.createElement('tr');
-      Object.keys(row).forEach(key => {
-        if(key === hiddenCol) return;
-        const td = document.createElement('td');
-        if(key === signupCol && row[key].trim() !== ''){
-          const a = document.createElement('a');
-          a.href = row[key];
-          a.target = "_blank";
-          a.textContent = "SignUp";
-          td.appendChild(a);
-        } else {
-          td.textContent = row[key];
+      const firstRow = data[0];
+      let signupCol = null;
+      let hiddenCol = null;
+
+      Object.keys(firstRow).forEach(key => {
+        const lowerKey = key.toLowerCase();
+        if(lowerKey === 'sign up') signupCol = key;
+        if(lowerKey === 'hidden') hiddenCol = key;
+        if(key !== hiddenCol){
+          const th = document.createElement('th');
+          th.textContent = key;
+          tableHeader.appendChild(th);
         }
-        tr.appendChild(td);
       });
-      tableBody.appendChild(tr);
-    });
-  }
-});
 
-// Load announcements
-Papa.parse(announcementsUrl, {
-  download: true,
-  header: false,
-  skipEmptyLines: true,
-  complete: function(results) {
-    const announcementDiv = document.getElementById('announcementList');
-    announcementDiv.innerHTML = '';
-    results.data.forEach(row => {
-      if(row[0].trim() !== ''){
-        const p = document.createElement('p');
-        p.textContent = row[0];
-        announcementDiv.appendChild(p);
-      }
-    });
-  }
-});
-
-// Search filter
-document.getElementById('searchInput').addEventListener('input', function(){
-  const filter = this.value.toLowerCase();
-  document.querySelectorAll('#tableBody tr').forEach(tr => {
-    tr.style.display = tr.textContent.toLowerCase().includes(filter) ? '' : 'none';
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        Object.keys(row).forEach(key => {
+          if(key === hiddenCol) return;
+          const td = document.createElement('td');
+          if(key === signupCol && row[key].trim() !== ''){
+            const a = document.createElement('a');
+            a.href = row[key];
+            a.target = "_blank";
+            a.textContent = "SignUp"; // <-- always show "SignUp"
+            td.appendChild(a);
+          } else {
+            td.textContent = row[key];
+          }
+          tr.appendChild(td);
+        });
+        tableBody.appendChild(tr);
+      });
+    }
   });
-});
+
+  // Announcements
+  Papa.parse(announcementsUrl, {
+    download: true,
+    header: false,
+    skipEmptyLines: true,
+    delimiter: "\t",
+    complete: function(results) {
+      const announcementDiv = document.getElementById('announcementList');
+      announcementDiv.innerHTML = '';
+      results.data.forEach(row => {
+        if(row[0].trim() !== ''){
+          const p = document.createElement('p');
+          p.textContent = row[0];
+          announcementDiv.appendChild(p);
+        }
+      });
+    }
+  });
+
+  // Search filter
+  document.getElementById('searchInput').addEventListener('input', function(){
+    const filter = this.value.toLowerCase();
+    document.querySelectorAll('#tableBody tr').forEach(tr => {
+      tr.style.display = tr.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    });
+  });
+
+}
 </script>
 
 </body>
