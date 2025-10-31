@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Volunteer Hub</title>
 
-<!-- PapaParse CSV parser -->
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
@@ -17,7 +16,6 @@
     --row-light: #f9f9f9;
     --row-dark: #ffffff;
   }
-
   body {
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
@@ -25,26 +23,22 @@
     background-color: var(--bg-light);
     color: var(--text-dark);
   }
-
   header {
     background-color: var(--brand-purple);
     color: white;
     padding: 20px;
-    text-align: center; /* Center logo + title */
+    text-align: center;
   }
-
   header img {
     height: 60px;
     display: block;
     margin: 0 auto 10px auto;
   }
-
   header h1 {
     color: var(--brand-yellow);
     font-size: 1.8rem;
     margin: 0;
   }
-
   section {
     margin: 25px auto; 
     width: 90%; 
@@ -55,18 +49,11 @@
     box-shadow: 0 1px 6px rgba(0,0,0,0.08);
     text-align: center;
   }
-
   h2 { 
     margin-bottom: 12px; 
     color: var(--brand-purple); 
     font-size: 1.5rem; 
   }
-
-  #notifications p { 
-    color: var(--brand-yellow); 
-    margin: 8px 0; 
-  }
-
   #searchInput { 
     width: 100%; 
     padding: 10px; 
@@ -76,27 +63,23 @@
     font-size: 1rem; 
     box-sizing: border-box;
   }
-
   .table-container { 
     overflow-x: auto; 
     max-height: 450px; 
     border: 1px solid #ccc; 
     border-radius: 8px;
   }
-
   table { 
     width: 100%; 
     border-collapse: collapse; 
     min-width: 600px; 
   }
-
   th, td { 
     padding: 10px 14px; 
     border-bottom: 1px solid #ddd; 
     text-align: left; 
     font-size: 0.95rem; 
   }
-
   th { 
     position: sticky; 
     top: 0; 
@@ -104,19 +87,9 @@
     color: var(--brand-yellow); 
     font-size: 1rem; 
   }
-
-  tbody tr:nth-child(even) { 
-    background-color: var(--row-light); 
-  }
-
-  tbody tr:nth-child(odd) { 
-    background-color: var(--row-dark); 
-  }
-
-  tbody tr:hover { 
-    background-color: #e0e0f0; 
-  }
-
+  tbody tr:nth-child(even) { background-color: var(--row-light); }
+  tbody tr:nth-child(odd) { background-color: var(--row-dark); }
+  tbody tr:hover { background-color: #e0e0f0; }
   footer { 
     margin-top: 35px; 
     padding: 20px 10px; 
@@ -125,11 +98,7 @@
     font-size: 0.9rem; 
     text-align: center;
   }
-
-  footer a { 
-    color: var(--brand-yellow); 
-    text-decoration: none; 
-  }
+  footer a { color: var(--brand-yellow); text-decoration: none; }
 
   @media (max-width: 600px) {
     h2 { font-size: 1.2rem; }
@@ -150,11 +119,6 @@
   <p>We’re so glad you’re here! Stay informed, connected, and inspired as we make a difference together in our community.</p>
 </section>
 
-<section id="notifications">
-  <h2>📢 Notifications</h2>
-  <div id="announcementList"><p>Loading announcements...</p></div>
-</section>
-
 <section>
   <h2>Volunteer Schedule</h2>
   <input type="text" id="searchInput" placeholder="Search in table...">
@@ -171,88 +135,63 @@
 </footer>
 
 <script>
-window.onload = function(){
+const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv&cachebuster=' + new Date().getTime();
 
-  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDHrJwHz/pub?gid=121942850&single=true&output=csv';
-  const announcementsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?gid=0&single=true&output=csv';
+Papa.parse(csvUrl, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  delimiter: "\t",
+  complete: function(results) {
+    const data = results.data;
+    const tableBody = document.getElementById('tableBody');
+    const tableHeader = document.getElementById('tableHeader');
+    tableBody.innerHTML = '';
+    tableHeader.innerHTML = '';
 
-  // Volunteer Table
-  Papa.parse(csvUrl, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    delimiter: "\t", // <-- IMPORTANT for tab-delimited CSV
-    complete: function(results) {
-      const data = results.data;
-      const tableBody = document.getElementById('tableBody');
-      const tableHeader = document.getElementById('tableHeader');
-      tableBody.innerHTML = '';
-      tableHeader.innerHTML = '';
+    const firstRow = data[0];
+    let signupCol = null;
+    let hiddenCol = null;
 
-      const firstRow = data[0];
-      let signupCol = null;
-      let hiddenCol = null;
-
-      Object.keys(firstRow).forEach(key => {
-        const lowerKey = key.toLowerCase();
-        if(lowerKey === 'sign up') signupCol = key;
-        if(lowerKey === 'hidden') hiddenCol = key;
-        if(key !== hiddenCol){
-          const th = document.createElement('th');
-          th.textContent = key;
-          tableHeader.appendChild(th);
-        }
-      });
-
-      data.forEach(row => {
-        const tr = document.createElement('tr');
-        Object.keys(row).forEach(key => {
-          if(key === hiddenCol) return;
-          const td = document.createElement('td');
-          if(key === signupCol && row[key].trim() !== ''){
-            const a = document.createElement('a');
-            a.href = row[key];
-            a.target = "_blank";
-            a.textContent = "SignUp"; // <-- always show "SignUp"
-            td.appendChild(a);
-          } else {
-            td.textContent = row[key];
-          }
-          tr.appendChild(td);
-        });
-        tableBody.appendChild(tr);
-      });
-    }
-  });
-
-  // Announcements
-  Papa.parse(announcementsUrl, {
-    download: true,
-    header: false,
-    skipEmptyLines: true,
-    delimiter: "\t",
-    complete: function(results) {
-      const announcementDiv = document.getElementById('announcementList');
-      announcementDiv.innerHTML = '';
-      results.data.forEach(row => {
-        if(row[0].trim() !== ''){
-          const p = document.createElement('p');
-          p.textContent = row[0];
-          announcementDiv.appendChild(p);
-        }
-      });
-    }
-  });
-
-  // Search filter
-  document.getElementById('searchInput').addEventListener('input', function(){
-    const filter = this.value.toLowerCase();
-    document.querySelectorAll('#tableBody tr').forEach(tr => {
-      tr.style.display = tr.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    Object.keys(firstRow).forEach(key => {
+      const lowerKey = key.toLowerCase();
+      if(lowerKey === 'sign up') signupCol = key;
+      if(lowerKey === 'hidden') hiddenCol = key;
+      if(key !== hiddenCol){
+        const th = document.createElement('th');
+        th.textContent = key;
+        tableHeader.appendChild(th);
+      }
     });
-  });
 
-}
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      Object.keys(row).forEach(key => {
+        if(key === hiddenCol) return;
+        const td = document.createElement('td');
+        if(key === signupCol && row[key].trim() !== ''){
+          const a = document.createElement('a');
+          a.href = row[key];
+          a.target = "_blank";
+          a.textContent = "SignUp";
+          td.appendChild(a);
+        } else {
+          td.textContent = row[key];
+        }
+        tr.appendChild(td);
+      });
+      tableBody.appendChild(tr);
+    });
+  }
+});
+
+// Simple search filter
+document.getElementById('searchInput').addEventListener('input', function(){
+  const filter = this.value.toLowerCase();
+  document.querySelectorAll('#tableBody tr').forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(filter) ? '' : 'none';
+  });
+});
 </script>
 
 </body>
