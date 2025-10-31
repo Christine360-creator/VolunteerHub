@@ -4,12 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Volunteer Hub</title>
+
+<!-- PapaParse CSV parser -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
 <style>
   :root {
-    --brand-purple: #5B2E91; /* Matches Squarespace logo/heading */
-    --brand-yellow: #FFCA00;  /* Accent color */
-    --bg-light: #F4F5FA;      /* Light background */
-    --text-dark: #202040;     /* Dark text */
+    --brand-purple: #5B2E91;
+    --brand-yellow: #FFCA00;
+    --bg-light: #F4F5FA;
+    --text-dark: #202040;
     --row-light: #f9f9f9;
     --row-dark: #ffffff;
   }
@@ -164,4 +168,96 @@
   <input type="text" id="searchInput" placeholder="Search in table...">
   <div class="table-container">
     <table id="volunteerTable">
-      <thead><tr id="tableHeader">
+      <thead><tr id="tableHeader"></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Contact us: <a href="mailto:yourname@example.com">yourname@example.com</a>
+</footer>
+
+<script>
+// CSV URLs
+const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDHrJwHz/pub?gid=121942850&single=true&output=csv';
+const announcementsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?gid=0&single=true&output=csv';
+
+// Load volunteer table
+Papa.parse(csvUrl, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
+    const data = results.data;
+    const tableBody = document.getElementById('tableBody');
+    const tableHeader = document.getElementById('tableHeader');
+    tableBody.innerHTML = '';
+    tableHeader.innerHTML = '';
+
+    // Header
+    const firstRow = data[0];
+    let signupCol = null;
+    let hiddenCol = null;
+    Object.keys(firstRow).forEach(key => {
+      const lowerKey = key.toLowerCase();
+      if(lowerKey === 'signup') signupCol = key;
+      if(lowerKey === 'hidden') hiddenCol = key;
+      if(lowerKey !== hiddenCol){
+        const th = document.createElement('th');
+        th.textContent = key;
+        tableHeader.appendChild(th);
+      }
+    });
+
+    // Rows
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      Object.keys(row).forEach(key => {
+        if(key === hiddenCol) return;
+        const td = document.createElement('td');
+        if(key === signupCol && row[key].trim() !== ''){
+          const a = document.createElement('a');
+          a.href = row[key];
+          a.target = "_blank";
+          a.textContent = "SignUp";
+          td.appendChild(a);
+        } else {
+          td.textContent = row[key];
+        }
+        tr.appendChild(td);
+      });
+      tableBody.appendChild(tr);
+    });
+  }
+});
+
+// Load announcements
+Papa.parse(announcementsUrl, {
+  download: true,
+  header: false,
+  skipEmptyLines: true,
+  complete: function(results) {
+    const announcementDiv = document.getElementById('announcementList');
+    announcementDiv.innerHTML = '';
+    results.data.forEach(row => {
+      if(row[0].trim() !== ''){
+        const p = document.createElement('p');
+        p.textContent = row[0];
+        announcementDiv.appendChild(p);
+      }
+    });
+  }
+});
+
+// Search filter
+document.getElementById('searchInput').addEventListener('input', function(){
+  const filter = this.value.toLowerCase();
+  document.querySelectorAll('#tableBody tr').forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(filter) ? '' : 'none';
+  });
+});
+</script>
+
+</body>
+</html>
