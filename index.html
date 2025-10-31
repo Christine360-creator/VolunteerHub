@@ -6,12 +6,12 @@
 <title>Volunteer Hub</title>
 <style>
   :root {
-    --brand-purple: #2E2D94;    /* Airdrie 1st purple */
-    --brand-yellow: #FFCA00;    /* Airdrie 1st gold */
+    --brand-purple: #5B2E91;
+    --brand-yellow: #FFCA00;
     --bg-light: #F4F5FA;
     --text-dark: #202040;
-    --row-light: #f9f9f9;       /* alternating table row light */
-    --row-dark: #ffffff;        /* alternating table row dark */
+    --row-light: #f9f9f9;
+    --row-dark: #ffffff;
   }
   body {
     font-family: 'Segoe UI', sans-serif;
@@ -32,82 +32,21 @@
     display: block;
     margin: 0 auto 10px;
   }
-  h1 {
-    color: var(--brand-yellow);
-    margin: 5px 0 15px;
-    font-size: 2rem;
-  }
-  section {
-    margin: 25px auto;
-    width: 90%;
-    max-width: 1000px;
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  }
-  .photo {
-    width: 150px;
-    max-width: 40%;
-    border-radius: 50%;
-    margin-bottom: 15px;
-  }
-  h2 {
-    margin-bottom: 12px;
-    color: var(--brand-purple);
-    font-size: 1.5rem;
-  }
-  #notifications p {
-    color: var(--brand-yellow);
-    margin: 8px 0;
-  }
-  #searchInput {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    font-size: 1rem;
-  }
-  .table-container {
-    overflow-x: auto;
-    max-height: 450px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 600px;
-  }
-  th, td {
-    padding: 10px 14px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-    font-size: 0.95rem;
-  }
-  th {
-    position: sticky;
-    top: 0;
-    background: var(--brand-purple);
-    color: white;
-    font-size: 1rem;
-  }
+  h1 { color: var(--brand-yellow); margin: 5px 0 15px; font-size: 2rem; }
+  section { margin: 25px auto; width: 90%; max-width: 1000px; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
+  .photo { width: 150px; max-width: 40%; border-radius: 50%; margin-bottom: 15px;}
+  h2 { margin-bottom: 12px; color: var(--brand-purple); font-size: 1.5rem; }
+  #notifications p { color: var(--brand-yellow); margin: 8px 0; }
+  #searchInput { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box;}
+  .table-container { overflow-x: auto; max-height: 450px; border: 1px solid #ccc; border-radius: 10px;}
+  table { width: 100%; border-collapse: collapse; min-width: 600px; }
+  th, td { padding: 10px 14px; border-bottom: 1px solid #ddd; text-align: left; font-size: 0.95rem; }
+  th { position: sticky; top: 0; background: var(--brand-purple); color: white; font-size: 1rem; }
   tbody tr:nth-child(even) { background-color: var(--row-light); }
   tbody tr:nth-child(odd) { background-color: var(--row-dark); }
   tbody tr:hover { background-color: #e0e0f0; }
-  footer {
-    margin-top: 35px;
-    padding: 20px 10px;
-    background: var(--brand-purple);
-    color: white;
-    font-size: 0.9rem;
-  }
-  footer a {
-    color: var(--brand-yellow);
-    text-decoration: none;
-  }
+  footer { margin-top: 35px; padding: 20px 10px; background: var(--brand-purple); color: white; font-size: 0.9rem; }
+  footer a { color: var(--brand-yellow); text-decoration: none; }
   @media (max-width: 600px) {
     .photo { width: 100px; }
     h1 { font-size: 1.6rem; }
@@ -132,9 +71,7 @@
 
 <section id="notifications">
   <h2>📢 Notifications</h2>
-  <div id="announcementList">
-    <p>Loading announcements...</p>
-  </div>
+  <div id="announcementList"><p>Loading announcements...</p></div>
 </section>
 
 <section>
@@ -142,9 +79,7 @@
   <input type="text" id="searchInput" placeholder="Search in table...">
   <div class="table-container">
     <table id="volunteerTable">
-      <thead>
-        <tr id="tableHeader"></tr>
-      </thead>
+      <thead><tr id="tableHeader"></tr></thead>
       <tbody id="tableBody"></tbody>
     </table>
   </div>
@@ -158,28 +93,32 @@
 const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv';
 const announcementsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?gid=0&single=true&output=csv';
 
-// Load volunteer schedule
 fetch(csvUrl)
   .then(resp => resp.text())
   .then(data => {
     const rows = data.split('\n').filter(r => r.trim() !== '');
     const tableBody = document.getElementById('tableBody');
     const tableHeader = document.getElementById('tableHeader');
-
     let signupColIndex = -1;
+    let hiddenColIndex = -1;
 
     rows.forEach((row, rowIndex) => {
       const cols = row.split(',');
       if(rowIndex === 0){
         cols.forEach((col, idx) => {
-          const th = document.createElement('th');
-          th.textContent = col;
-          tableHeader.appendChild(th);
-          if(col.trim().toLowerCase() === "signup") signupColIndex = idx;
+          const lowerCol = col.trim().toLowerCase();
+          if(lowerCol === "signup") signupColIndex = idx;
+          if(lowerCol === "hidden") hiddenColIndex = idx;
+          if(idx !== hiddenColIndex){ // do not display HIDDEN column
+            const th = document.createElement('th');
+            th.textContent = col;
+            tableHeader.appendChild(th);
+          }
         });
       } else {
         const tr = document.createElement('tr');
         cols.forEach((col, colIndex) => {
+          if(colIndex === hiddenColIndex) return; // skip HIDDEN column
           const td = document.createElement('td');
           if(colIndex === signupColIndex && col.trim() !== ""){
             const a = document.createElement('a');
@@ -198,7 +137,6 @@ fetch(csvUrl)
   })
   .catch(err => console.error("Error loading schedule CSV:", err));
 
-// Search function
 document.getElementById('searchInput').addEventListener('input', function(){
   const filter = this.value.toLowerCase();
   document.querySelectorAll('#tableBody tr').forEach(tr => {
@@ -206,7 +144,6 @@ document.getElementById('searchInput').addEventListener('input', function(){
   });
 });
 
-// Load announcements
 fetch(announcementsUrl)
   .then(resp => resp.text())
   .then(data => {
@@ -230,5 +167,4 @@ fetch(announcementsUrl)
 
 </body>
 </html>
-
 
