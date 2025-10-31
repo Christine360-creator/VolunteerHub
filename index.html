@@ -41,7 +41,7 @@
   .table-container { overflow-x: auto; max-height: 450px; border: 1px solid #ccc; border-radius: 10px;}
   table { width: 100%; border-collapse: collapse; min-width: 600px; }
   th, td { padding: 10px 14px; border-bottom: 1px solid #ddd; text-align: left; font-size: 0.95rem; }
-  th { position: sticky; top: 0; background: var(--brand-purple); color: white; font-size: 1rem; }
+  th { position: sticky; top: 0; background: var(--brand-purple); color: var(--brand-yellow); font-size: 1rem; }
   tbody tr:nth-child(even) { background-color: var(--row-light); }
   tbody tr:nth-child(odd) { background-color: var(--row-dark); }
   tbody tr:hover { background-color: #e0e0f0; }
@@ -109,7 +109,7 @@ fetch(csvUrl)
           const lowerCol = col.trim().toLowerCase();
           if(lowerCol === "signup") signupColIndex = idx;
           if(lowerCol === "hidden") hiddenColIndex = idx;
-          if(idx !== hiddenColIndex){ // do not display HIDDEN column
+          if(idx !== hiddenColIndex){ // hide HIDDEN column
             const th = document.createElement('th');
             th.textContent = col;
             tableHeader.appendChild(th);
@@ -124,7 +124,7 @@ fetch(csvUrl)
             const a = document.createElement('a');
             a.href = col;
             a.target = "_blank";
-            a.textContent = "SignUp";
+            a.textContent = "SignUp"; // show as SignUp
             td.appendChild(a);
           } else {
             td.textContent = col;
@@ -137,6 +137,7 @@ fetch(csvUrl)
   })
   .catch(err => console.error("Error loading schedule CSV:", err));
 
+// Table search
 document.getElementById('searchInput').addEventListener('input', function(){
   const filter = this.value.toLowerCase();
   document.querySelectorAll('#tableBody tr').forEach(tr => {
@@ -144,6 +145,7 @@ document.getElementById('searchInput').addEventListener('input', function(){
   });
 });
 
+// Load announcements
 fetch(announcementsUrl)
   .then(resp => resp.text())
   .then(data => {
@@ -167,4 +169,5 @@ fetch(announcementsUrl)
 
 </body>
 </html>
+
 
