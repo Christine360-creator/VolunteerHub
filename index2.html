@@ -1,3 +1,5 @@
+
+You said:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -103,7 +105,7 @@ fetch(csvUrl)
     let hiddenColIndex = -1;
 
     rows.forEach((row, rowIndex) => {
-      const cols = row.split(','); // same as original
+      const cols = row.split(','); // works because no commas in CSV
       if(rowIndex === 0){
         cols.forEach((col, idx) => {
           const lowerCol = col.trim().toLowerCase();
@@ -118,19 +120,17 @@ fetch(csvUrl)
       } else {
         const tr = document.createElement('tr');
         cols.forEach((col, colIndex) => {
-          if(colIndex === hiddenColIndex) return;
+          if(colIndex === hiddenColIndex) return; // skip HIDDEN column
           const td = document.createElement('td');
-          // <-- TWEAKED PART -->
           if(colIndex === signupColIndex && col.trim() !== ""){
             const a = document.createElement('a');
-            a.href = col.trim().replace(/^"|"$/g,''); // trim spaces & remove quotes
+            a.href = col;
             a.target = "_blank";
-            a.textContent = "SignUp"; // shows "SignUp" instead of URL
+            a.textContent = "SignUp"; // show as SignUp
             td.appendChild(a);
           } else {
-            td.textContent = col.trim(); // trim spaces for all other cells
+            td.textContent = col;
           }
-          // ----------------
           tr.appendChild(td);
         });
         tableBody.appendChild(tr);
@@ -157,7 +157,7 @@ fetch(announcementsUrl)
     rows.forEach(row => {
       if(row.trim() !== ""){
         const p = document.createElement('p');
-        p.textContent = row.trim();
+        p.textContent = row;
         announcementDiv.appendChild(p);
       }
     });
@@ -170,4 +170,4 @@ fetch(announcementsUrl)
 </script>
 
 </body>
-</html>
+</html>   
