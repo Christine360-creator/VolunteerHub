@@ -6,24 +6,23 @@
 <title>Volunteer Hub</title>
 <style>
   :root {
-    /* Brand colours based on Airdrie 1st Club site */
-    --brand‑dark: #2E2D94;     /* a deep blue‑purple */
-    --brand‑mid: #5B57D6;      /* lighter blue‑purple */
-    --brand‑accent: #FFCA00;   /* gold/yellow accent */
-    --brand‑light: #F4F5FA;    /* very light background */
-    --text‑dark: #202040;      /* dark text colour */
+    --brand-purple: #2E2D94;    /* Airdrie 1st purple */
+    --brand-yellow: #FFCA00;    /* Airdrie 1st gold */
+    --bg-light: #F4F5FA;
+    --text-dark: #202040;
+    --row-light: #f9f9f9;       /* alternating table row light */
+    --row-dark: #ffffff;        /* alternating table row dark */
   }
   body {
-    font-family: 'Segoe UI', sans‑serif;
+    font-family: 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: var(--brand‑light);
-    color: var(--text‑dark);
+    background-color: var(--bg-light);
+    color: var(--text-dark);
     text-align: center;
   }
-
   header {
-    background-color: var(--brand‑dark);
+    background-color: var(--brand-purple);
     color: white;
     padding: 20px 10px;
   }
@@ -34,11 +33,10 @@
     margin: 0 auto 10px;
   }
   h1 {
-    color: var(--brand‑accent);
+    color: var(--brand-yellow);
     margin: 5px 0 15px;
     font-size: 2rem;
   }
-
   section {
     margin: 25px auto;
     width: 90%;
@@ -48,25 +46,21 @@
     padding: 25px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   }
-
   .photo {
     width: 150px;
     max-width: 40%;
     border-radius: 50%;
     margin-bottom: 15px;
   }
-
   h2 {
     margin-bottom: 12px;
-    color: var(--brand‑mid);
+    color: var(--brand-purple);
     font-size: 1.5rem;
   }
-
   #notifications p {
-    color: var(--brand‑accent);
+    color: var(--brand-yellow);
     margin: 8px 0;
   }
-
   #searchInput {
     width: 100%;
     padding: 10px;
@@ -76,18 +70,16 @@
     box-sizing: border-box;
     font-size: 1rem;
   }
-
   .table-container {
     overflow-x: auto;
     max-height: 450px;
     border: 1px solid #ccc;
     border-radius: 10px;
   }
-
   table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px; /* ensures horizontal scroll on mobile */
+    min-width: 600px;
   }
   th, td {
     padding: 10px 14px;
@@ -98,54 +90,42 @@
   th {
     position: sticky;
     top: 0;
-    background: var(--brand‑dark);
+    background: var(--brand-purple);
     color: white;
     font-size: 1rem;
   }
-
+  tbody tr:nth-child(even) { background-color: var(--row-light); }
+  tbody tr:nth-child(odd) { background-color: var(--row-dark); }
+  tbody tr:hover { background-color: #e0e0f0; }
   footer {
     margin-top: 35px;
     padding: 20px 10px;
-    background: var(--brand‑dark);
+    background: var(--brand-purple);
     color: white;
     font-size: 0.9rem;
   }
   footer a {
-    color: var(--brand‑accent);
+    color: var(--brand-yellow);
     text-decoration: none;
   }
-
-  /* Responsive adjustments */
   @media (max-width: 600px) {
-    .photo {
-      width: 100px;
-    }
-    h1 {
-      font-size: 1.6rem;
-    }
-    h2 {
-      font-size: 1.2rem;
-    }
-    th, td {
-      padding: 6px 8px;
-      font-size: 0.85rem;
-    }
-    #searchInput {
-      padding: 8px;
-      font-size: 0.9rem;
-    }
+    .photo { width: 100px; }
+    h1 { font-size: 1.6rem; }
+    h2 { font-size: 1.2rem; }
+    th, td { padding: 6px 8px; font-size: 0.85rem; }
+    #searchInput { padding: 8px; font-size: 0.9rem; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <img src="https://raw.githubusercontent.com/Christine360-creator/VolunteerHub/main/airdrie1st%20logo.png" alt="Airdrie 1st Logo">
+  <img src="https://raw.githubusercontent.com/Christine360-creator/VolunteerHub/c65ad3dee2ed68a1749eab9f566490ebf80b7dd8/airdrie1st%20logo.png" alt="Airdrie 1st Logo">
   <h1>Volunteer Hub</h1>
 </header>
 
 <section>
-  <img class="photo" src="https://raw.githubusercontent.com/Christine360-creator/VolunteerHub/main/airdrie1st%20logo.png" alt="Community photo">
+  <img class="photo" src="https://raw.githubusercontent.com/Christine360-creator/VolunteerHub/c65ad3dee2ed68a1749eab9f566490ebf80b7dd8/airdrie1st%20logo.png" alt="Community photo">
   <h2>Welcome to Airdrie 1st Volunteers</h2>
   <p>We’re so glad you’re here! Stay informed, connected, and inspired as we make a difference together in our community.</p>
 </section>
@@ -175,36 +155,37 @@
 </footer>
 
 <script>
-// CSV link for volunteer schedule
 const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv';
+const announcementsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?gid=0&single=true&output=csv';
 
-// Fetch CSV and populate table
+// Load volunteer schedule
 fetch(csvUrl)
-  .then(response => response.text())
+  .then(resp => resp.text())
   .then(data => {
     const rows = data.split('\n').filter(r => r.trim() !== '');
     const tableBody = document.getElementById('tableBody');
     const tableHeader = document.getElementById('tableHeader');
 
+    let signupColIndex = -1;
+
     rows.forEach((row, rowIndex) => {
       const cols = row.split(',');
-      if (rowIndex === 0) {
-        // Header row
-        cols.forEach(col => {
+      if(rowIndex === 0){
+        cols.forEach((col, idx) => {
           const th = document.createElement('th');
           th.textContent = col;
           tableHeader.appendChild(th);
+          if(col.trim().toLowerCase() === "signup") signupColIndex = idx;
         });
       } else {
         const tr = document.createElement('tr');
         cols.forEach((col, colIndex) => {
           const td = document.createElement('td');
-          // If this is the link column (H = 7 zero‑based index), display “SignUp”
-          if (colIndex === 7 && col.trim() !== "") {
+          if(colIndex === signupColIndex && col.trim() !== ""){
             const a = document.createElement('a');
-            a.href = col;        // actual URL
+            a.href = col;
             a.target = "_blank";
-            a.textContent = "SignUp"; // display text
+            a.textContent = "SignUp";
             td.appendChild(a);
           } else {
             td.textContent = col;
@@ -215,31 +196,25 @@ fetch(csvUrl)
       }
     });
   })
-  .catch(err => {
-    console.error("Error loading schedule CSV:", err);
-  });
+  .catch(err => console.error("Error loading schedule CSV:", err));
 
-// Search function for table
-document.getElementById('searchInput').addEventListener('input', function() {
+// Search function
+document.getElementById('searchInput').addEventListener('input', function(){
   const filter = this.value.toLowerCase();
   document.querySelectorAll('#tableBody tr').forEach(tr => {
-    const text = tr.textContent.toLowerCase();
-    tr.style.display = text.includes(filter) ? '' : 'none';
+    tr.style.display = tr.textContent.toLowerCase().includes(filter) ? '' : 'none';
   });
 });
 
-// Announcements sheet link
-const announcementsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?gid=0&single=true&output=csv';
-
-// Fetch announcements and populate notifications
+// Load announcements
 fetch(announcementsUrl)
-  .then(response => response.text())
+  .then(resp => resp.text())
   .then(data => {
     const rows = data.split('\n').filter(r => r.trim() !== '');
     const announcementDiv = document.getElementById('announcementList');
-    announcementDiv.innerHTML = ''; // clear loading text
-    rows.forEach((row, idx) => {
-      if (row.trim() !== "") {
+    announcementDiv.innerHTML = '';
+    rows.forEach(row => {
+      if(row.trim() !== ""){
         const p = document.createElement('p');
         p.textContent = row;
         announcementDiv.appendChild(p);
@@ -255,4 +230,5 @@ fetch(announcementsUrl)
 
 </body>
 </html>
+
 
