@@ -33,4 +33,141 @@
     margin: 0 auto 10px;
   }
   h1 { color: var(--brand-yellow); margin: 5px 0 15px; font-size: 2rem; }
-  section { margin: 25px auto; width: 90%; max-width: 1000px;
+  section { margin: 25px auto; width: 90%; max-width: 1000px; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
+  .photo { width: 150px; max-width: 40%; border-radius: 50%; margin-bottom: 15px;}
+  h2 { margin-bottom: 12px; color: var(--brand-purple); font-size: 1.5rem; }
+  #notifications p { color: var(--brand-yellow); margin: 8px 0; }
+  #searchInput { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box;}
+  .table-container { overflow-x: auto; max-height: 450px; border: 1px solid #ccc; border-radius: 10px;}
+  table { width: 100%; border-collapse: collapse; min-width: 600px; }
+  th, td { padding: 10px 14px; border-bottom: 1px solid #ddd; text-align: left; font-size: 0.95rem; }
+  th { position: sticky; top: 0; background: var(--brand-purple); color: var(--brand-yellow); font-size: 1rem; }
+  tbody tr:nth-child(even) { background-color: var(--row-light); }
+  tbody tr:nth-child(odd) { background-color: var(--row-dark); }
+  tbody tr:hover { background-color: #e0e0f0; }
+  footer { margin-top: 35px; padding: 20px 10px; background: var(--brand-purple); color: white; font-size: 0.9rem; }
+  footer a { color: var(--brand-yellow); text-decoration: none; }
+  @media (max-width: 600px) {
+    .photo { width: 100px; }
+    h1 { font-size: 1.6rem; }
+    h2 { font-size: 1.2rem; }
+    th, td { padding: 6px 8px; font-size: 0.85rem; }
+    #searchInput { padding: 8px; font-size: 0.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="https://raw.githubusercontent.com/Christine360-creator/VolunteerHub/c65ad3dee2ed68a1749eab9f566490ebf80b7dd8/airdrie1st%20logo.png" alt="Airdrie 1st Logo">
+  <h1>Volunteer Hub</h1>
+</header>
+
+<section>
+  <img class="photo" src="https://raw.githubusercontent.com/Christine360-creator/VolunteerHub/c65ad3dee2ed68a1749eab9f566490ebf80b7dd8/airdrie1st%20logo.png" alt="Community photo">
+  <h2>Welcome to Airdrie 1st Volunteers</h2>
+  <p>We’re so glad you’re here! Stay informed, connected, and inspired as we make a difference together in our community.</p>
+</section>
+
+<section id="notifications">
+  <h2>📢 Notifications</h2>
+  <div id="announcementList"><p>Loading announcements...</p></div>
+</section>
+
+<section>
+  <h2>Volunteer Schedule</h2>
+  <input type="text" id="searchInput" placeholder="Search in table...">
+  <div class="table-container">
+    <table id="volunteerTable">
+      <thead><tr id="tableHeader"></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Contact us: <a href="mailto:yourname@example.com">yourname@example.com</a>
+</footer>
+
+<script>
+const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDHrJwHz/pub?gid=121942850&single=true&output=csv';
+const announcementsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?gid=0&single=true&output=csv';
+
+fetch(csvUrl)
+  .then(resp => resp.text())
+  .then(data => {
+    const rows = data.split('\n').filter(r => r.trim() !== '');
+    const tableBody = document.getElementById('tableBody');
+    const tableHeader = document.getElementById('tableHeader');
+    let signupColIndex = -1;
+    let hiddenColIndex = -1;
+
+    rows.forEach((row, rowIndex) => {
+      const cols = row.split(','); // same as original
+      if(rowIndex === 0){
+        cols.forEach((col, idx) => {
+          const lowerCol = col.trim().toLowerCase();
+          if(lowerCol === "signup") signupColIndex = idx;
+          if(lowerCol === "hidden") hiddenColIndex = idx;
+          if(idx !== hiddenColIndex){
+            const th = document.createElement('th');
+            th.textContent = col;
+            tableHeader.appendChild(th);
+          }
+        });
+      } else {
+        const tr = document.createElement('tr');
+        cols.forEach((col, colIndex) => {
+          if(colIndex === hiddenColIndex) return;
+          const td = document.createElement('td');
+          // <-- TWEAKED PART -->
+          if(colIndex === signupColIndex && col.trim() !== ""){
+            const a = document.createElement('a');
+            a.href = col.trim().replace(/^"|"$/g,''); // trim spaces & remove quotes
+            a.target = "_blank";
+            a.textContent = "SignUp"; // shows "SignUp" instead of URL
+            td.appendChild(a);
+          } else {
+            td.textContent = col.trim(); // trim spaces for all other cells
+          }
+          // ----------------
+          tr.appendChild(td);
+        });
+        tableBody.appendChild(tr);
+      }
+    });
+  })
+  .catch(err => console.error("Error loading schedule CSV:", err));
+
+// Table search
+document.getElementById('searchInput').addEventListener('input', function(){
+  const filter = this.value.toLowerCase();
+  document.querySelectorAll('#tableBody tr').forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(filter) ? '' : 'none';
+  });
+});
+
+// Load announcements
+fetch(announcementsUrl)
+  .then(resp => resp.text())
+  .then(data => {
+    const rows = data.split('\n').filter(r => r.trim() !== '');
+    const announcementDiv = document.getElementById('announcementList');
+    announcementDiv.innerHTML = '';
+    rows.forEach(row => {
+      if(row.trim() !== ""){
+        const p = document.createElement('p');
+        p.textContent = row.trim();
+        announcementDiv.appendChild(p);
+      }
+    });
+  })
+  .catch(err => {
+    const announcementDiv = document.getElementById('announcementList');
+    announcementDiv.innerHTML = '<p>No announcements available.</p>';
+    console.error("Error loading announcements CSV:", err);
+  });
+</script>
+
+</body>
+</html>
