@@ -90,7 +90,7 @@
 </footer>
 
 <script>
-const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDHrJwHz/pub?gid=121942850&single=true&output=csv';
+const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv';
 const announcementsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?gid=0&single=true&output=csv';
 
 fetch(csvUrl)
@@ -103,7 +103,7 @@ fetch(csvUrl)
     let hiddenColIndex = -1;
 
     rows.forEach((row, rowIndex) => {
-      const cols = row.split(','); // works because no commas in CSV
+      const cols = row.split(','); // works because your CSV has no commas inside cells
       if(rowIndex === 0){
         cols.forEach((col, idx) => {
           const lowerCol = col.trim().toLowerCase();
@@ -111,23 +111,23 @@ fetch(csvUrl)
           if(lowerCol === "hidden") hiddenColIndex = idx;
           if(idx !== hiddenColIndex){
             const th = document.createElement('th');
-            th.textContent = col;
+            th.textContent = col.trim();
             tableHeader.appendChild(th);
           }
         });
       } else {
         const tr = document.createElement('tr');
         cols.forEach((col, colIndex) => {
-          if(colIndex === hiddenColIndex) return; // skip HIDDEN column
+          if(colIndex === hiddenColIndex) return;
           const td = document.createElement('td');
           if(colIndex === signupColIndex && col.trim() !== ""){
             const a = document.createElement('a');
-            a.href = col;
+            a.href = col.trim();
             a.target = "_blank";
-            a.textContent = "SignUp"; // show as SignUp
+            a.textContent = "SignUp"; // show "SignUp" instead of URL
             td.appendChild(a);
           } else {
-            td.textContent = col;
+            td.textContent = col.trim();
           }
           tr.appendChild(td);
         });
@@ -155,7 +155,7 @@ fetch(announcementsUrl)
     rows.forEach(row => {
       if(row.trim() !== ""){
         const p = document.createElement('p');
-        p.textContent = row;
+        p.textContent = row.trim();
         announcementDiv.appendChild(p);
       }
     });
@@ -169,4 +169,3 @@ fetch(announcementsUrl)
 
 </body>
 </html>
-
