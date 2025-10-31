@@ -90,20 +90,41 @@
 </footer>
 
 <script>
+// CSV links
 const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRc8yold1M7kWaQDzmCu5TFndjcPiWMb5kCKR0fCRTu5uknjWE-7ctw_CcpQHcMHrDnjHAuDH4qJwHz/pub?gid=121942850&single=true&output=csv';
 const announcementsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR-cOYV978Imr0x1RK2w4CyDyfA4IlQP_cA5Oikg9heddQSDThbRrO-nH1HxY24grCQppKZqf4XCGG/pub?gid=0&single=true&output=csv';
 
+// Robust CSV parser
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split('\n');
+  lines.forEach(line => {
+    const cols = [];
+    let col = '';
+    let insideQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') insideQuotes = !insideQuotes;
+      else if (char === ',' && !insideQuotes) { cols.push(col); col=''; }
+      else col += char;
+    }
+    cols.push(col);
+    rows.push(cols);
+  });
+  return rows;
+}
+
+// Load volunteer table
 fetch(csvUrl)
   .then(resp => resp.text())
   .then(data => {
-    const rows = data.split('\n').filter(r => r.trim() !== '');
+    const rows = parseCSV(data).filter(r => r.join('').trim() !== '');
     const tableBody = document.getElementById('tableBody');
     const tableHeader = document.getElementById('tableHeader');
     let signupColIndex = -1;
     let hiddenColIndex = -1;
 
-    rows.forEach((row, rowIndex) => {
-      const cols = row.split(','); // works because your CSV has no commas inside cells
+    rows.forEach((cols, rowIndex) => {
       if(rowIndex === 0){
         cols.forEach((col, idx) => {
           const lowerCol = col.trim().toLowerCase();
@@ -124,7 +145,7 @@ fetch(csvUrl)
             const a = document.createElement('a');
             a.href = col.trim();
             a.target = "_blank";
-            a.textContent = "SignUp"; // show "SignUp" instead of URL
+            a.textContent = "SignUp";
             td.appendChild(a);
           } else {
             td.textContent = col.trim();
@@ -149,13 +170,13 @@ document.getElementById('searchInput').addEventListener('input', function(){
 fetch(announcementsUrl)
   .then(resp => resp.text())
   .then(data => {
-    const rows = data.split('\n').filter(r => r.trim() !== '');
+    const rows = parseCSV(data).filter(r => r.join('').trim() !== '');
     const announcementDiv = document.getElementById('announcementList');
     announcementDiv.innerHTML = '';
-    rows.forEach(row => {
-      if(row.trim() !== ""){
+    rows.forEach(cols => {
+      if(cols[0].trim() !== ""){
         const p = document.createElement('p');
-        p.textContent = row.trim();
+        p.textContent = cols[0].trim();
         announcementDiv.appendChild(p);
       }
     });
@@ -169,3 +190,4 @@ fetch(announcementsUrl)
 
 </body>
 </html>
+
